@@ -1,5 +1,6 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
+  ActivityIndicator,
   ScrollView,
   StyleSheet,
   Text,
@@ -16,7 +17,8 @@ import BottomNavigation from "../components/BottomNavigation";
 
 import { COLORS } from "../constants/colors";
 import { dimensions } from "../constants/dimensions";
-import { drinks, menuCategories } from "../data/drinks";
+import { fetchDrinks } from "../api/drinksApi";
+import { menuCategories } from "../constants/categories";
 import { Drink, MenuCategory, Screen } from "../types";
 
 interface MenuScreenProps {
@@ -37,9 +39,43 @@ export default function MenuScreen({
   const horizontalPadding =
     width <= 340 ? 14 : dimensions.layout.horizontalPadding;
 
+  const [drinks, setDrinks] = useState<Drink[]>([]);
   const [activeCategory, setActiveCategory] = useState<MenuCategory>("All");
-
   const [search, setSearch] = useState("");
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadDrinks() {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        const data = await fetchDrinks();
+
+        if (isMounted) {
+          setDrinks(data);
+        }
+      } catch {
+        if (isMounted) {
+          setError("Failed to load menu");
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    loadDrinks();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const listedDrinks = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -55,7 +91,7 @@ export default function MenuScreen({
         return matchesCategory && matchesSearch;
       })
       .sort((a, b) => a.name.localeCompare(b.name));
-  }, [activeCategory, search]);
+  }, [drinks, activeCategory, search]);
 
   const handleCategoryChange = (category: MenuCategory) => {
     setActiveCategory(category);
@@ -93,6 +129,7 @@ export default function MenuScreen({
         stickyHeaderIndices={[0]}
         contentContainerStyle={styles.content}
       >
+        {/* STICKY CATEGORY TITLE */}
         <View
           style={[
             styles.sectionTitleContainer,
@@ -104,25 +141,44 @@ export default function MenuScreen({
           </Text>
         </View>
 
-        <View style={[styles.list, { paddingHorizontal: horizontalPadding }]}>
-          {listedDrinks.map((drink) => (
-            <MenuCard
-              key={drink.id}
-              drink={drink}
-              onPress={() => {
-                setSearch("");
-                onDrinkSelect(drink);
-              }}
-            />
-          ))}
-        </View>
-
-        {listedDrinks.length === 0 && (
-          <View
-            style={[styles.empty, { paddingHorizontal: horizontalPadding }]}
-          >
-            <Text style={styles.emptyText}>No drinks found</Text>
+        {isLoading && (
+          <View style={styles.center}>
+            <ActivityIndicator size="small" color={COLORS.primary} />
+            <Text style={styles.statusText}>Loading menu...</Text>
           </View>
+        )}
+
+        {!isLoading && error && (
+          <View style={styles.center}>
+            <Text style={styles.errorText}>{error}</Text>
+          </View>
+        )}
+
+        {!isLoading && !error && (
+          <>
+            <View
+              style={[styles.list, { paddingHorizontal: horizontalPadding }]}
+            >
+              {listedDrinks.map((drink) => (
+                <MenuCard
+                  key={drink.id}
+                  drink={drink}
+                  onPress={() => {
+                    setSearch("");
+                    onDrinkSelect(drink);
+                  }}
+                />
+              ))}
+            </View>
+
+            {listedDrinks.length === 0 && (
+              <View
+                style={[styles.empty, { paddingHorizontal: horizontalPadding }]}
+              >
+                <Text style={styles.emptyText}>No drinks found</Text>
+              </View>
+            )}
+          </>
         )}
 
         <View style={styles.bottomSpace} />
@@ -164,6 +220,24 @@ const styles = StyleSheet.create({
   list: {
     paddingTop: 9,
     gap: dimensions.spacing.md,
+  },
+
+  center: {
+    paddingVertical: 40,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  statusText: {
+    marginTop: 8,
+    color: COLORS.textSecondary,
+    fontSize: dimensions.typography.body,
+  },
+
+  errorText: {
+    color: COLORS.textSecondary,
+    fontSize: dimensions.typography.body,
+    textAlign: "center",
   },
 
   empty: {

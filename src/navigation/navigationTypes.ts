@@ -10,10 +10,6 @@ export type RootStackParamList = {
     drinkId: string;
   };
 
-  ApiCoffeeDetails: {
-    itemId: string;
-  };
-
   Checkout: undefined;
 
   Payment: undefined;

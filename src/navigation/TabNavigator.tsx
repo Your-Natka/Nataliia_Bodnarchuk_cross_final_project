@@ -98,16 +98,6 @@ function HomeScreenAdapter() {
     }
   };
 
-  const handleApiCoffeeSelect = (itemId: string) => {
-    const parent = navigation.getParent();
-
-    if (parent) {
-      parent.getParent()?.navigate("ApiCoffeeDetails", {
-        itemId,
-      });
-    }
-  };
-
   return (
     <HomeScreen
       cartCount={cartCount}
@@ -116,7 +106,6 @@ function HomeScreenAdapter() {
         navigation.dispatch(DrawerActions.openDrawer());
       }}
       onDrinkSelect={handleDrinkSelect}
-      onApiCoffeeSelect={handleApiCoffeeSelect}
       favorites={favorites}
       onToggleFavorite={toggleFavorite}
     />

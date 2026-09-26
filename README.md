@@ -6,6 +6,7 @@ The application was developed with React Native, Expo and TypeScript and expande
 ## Project Links
 
 - **GitHub Repository:** [Drinkly — Final Project](https://github.com/Your-Natka/Nataliia_Bodnarchuk_cross_final_project)
+- **Finally Presentation:**[Drinkly-Final-Project.pdf](docs/Drinkly-Final-Project.pdf)
 - **UX/UI Presentation:** [QR-Drinkly-UX-UI.pdf](docs/QR-Drinkly-UX-UI.pdf)
 - **Wireframes:** [QR-Drinkly-Wireframes.pdf](docs/QR-Drinkly-Wireframes.pdf)
 

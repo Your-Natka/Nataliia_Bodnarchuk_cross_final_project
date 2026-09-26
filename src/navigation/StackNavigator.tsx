@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import {
   NavigationProp,
@@ -14,10 +15,9 @@ import DrawerNavigator from "./DrawerNavigator";
 import CheckoutScreen from "../pages/Checkout";
 import PaymentMethodScreen from "../pages/PaymentMethod";
 import OrderConfirmationScreen from "../pages/OrderConfirmation";
-import ApiCoffeeDetailsScreen from "../pages/ApiCoffeeDetails";
 
-import { drinks } from "../data/drinks";
-import { OrderMode, PaymentMethod, CartItem } from "../types";
+import { fetchDrinkById } from "../api/drinksApi";
+import { Drink, OrderMode, PaymentMethod, CartItem } from "../types";
 import { RootStackParamList } from "./navigationTypes";
 import { useAppContext } from "../context/AppContext";
 import { SCREENS } from "../constants/screens";
@@ -41,11 +41,6 @@ export default function StackNavigator() {
       <Stack.Screen
         name={SCREENS.DRINK_DETAILS}
         component={DrinkDetailsScreenAdapter}
-      />
-
-      <Stack.Screen
-        name="ApiCoffeeDetails"
-        component={ApiCoffeeDetailsScreen}
       />
 
       <Stack.Screen name={SCREENS.CHECKOUT} component={CheckoutScreenAdapter} />
@@ -81,40 +76,44 @@ function WelcomeScreenAdapter() {
 
 function DrinkDetailsScreenAdapter() {
   const route = useRoute<RouteProp<RootStackParamList, "DrinkDetails">>();
-
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-
   const dispatch = useDispatch<AppDispatch>();
 
   const drinkId = route.params?.drinkId;
 
-  const drink = drinks.find((item) => item.id === drinkId);
+  const [drink, setDrink] = useState<Drink | null>(null);
 
-  if (!drink) {
-    return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorTitle}>Drink not found</Text>
+  const [loading, setLoading] = useState(true);
 
-        <Text style={styles.errorText}>
-          Sorry, this drink is not available.
-        </Text>
+  const [error, setError] = useState<string | null>(null);
 
-        <TouchableOpacity
-          style={styles.errorButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Text style={styles.errorButtonText}>Go back</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
+  useEffect(() => {
+    if (!drinkId) {
+      setError("Drink not found.");
+      setLoading(false);
+      return;
+    }
 
-  const handleBack = () => {
-    navigation.goBack();
-  };
+    const loadDrink = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const data = await fetchDrinkById(drinkId);
+
+        setDrink(data);
+      } catch {
+        setError("Sorry, this drink is not available.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadDrink();
+  }, [drinkId]);
 
   const handleAddToCart = (
-    selectedDrink: typeof drink,
+    selectedDrink: Drink,
     options: Parameters<
       NonNullable<
         React.ComponentProps<typeof DrinkDetailsScreen>["onAddToCart"]
@@ -144,10 +143,37 @@ function DrinkDetailsScreenAdapter() {
     });
   };
 
+  if (loading) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>Loading drink...</Text>
+      </View>
+    );
+  }
+
+  if (error || !drink) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorTitle}>Drink not found</Text>
+
+        <Text style={styles.errorText}>
+          {error ?? "Sorry, this drink is not available."}
+        </Text>
+
+        <TouchableOpacity
+          style={styles.errorButton}
+          onPress={() => navigation.goBack()}
+        >
+          <Text style={styles.errorButtonText}>Go back</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   return (
     <DrinkDetailsScreen
       drink={drink}
-      onBack={handleBack}
+      onBack={() => navigation.goBack()}
       onAddToCart={handleAddToCart}
     />
   );

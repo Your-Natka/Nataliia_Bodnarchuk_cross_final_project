@@ -13,7 +13,13 @@ export type OrderMode = "dine-in" | "takeaway";
 
 export type PaymentMethod = "card" | "cash";
 
-export type Category = "Coffee" | "Tea" | "Cold Drinks" | "Juice" | "Water";
+export type Category =
+  | "Coffee"
+  | "Tea"
+  | "Cold Drinks"
+  | "Juice"
+  | "Water"
+  | "Cocoa";
 
 export type MenuCategory = "All" | "Hot Drinks" | "Cold Drinks" | "Others";
 
