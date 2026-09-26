@@ -1,645 +1,450 @@
-# Drinkly — React Native Drink Ordering App
+# Drinkly
 
-A mobile-first drink ordering application built with React Native, Expo and TypeScript.
+Drinkly is a cross-platform mobile application for ordering drinks in a café.
+The application was developed with React Native, Expo and TypeScript and expanded with a custom REST API, improved search and category filtering, navigation parameters, Context API and Redux Toolkit.
 
-Drinkly allows users to browse drinks, search and filter the catalog, view drink details, customize their order, manage the cart, choose an order type and complete the checkout process.
+## Project Links
 
-## 📱 Preview
+- **GitHub Repository:** [Drinkly — Final Project](https://github.com/Your-Natka/Nataliia_Bodnarchuk_cross_final_project)
+- **UX/UI Presentation:** [QR-Drinkly-UX-UI.pdf](docs/QR-Drinkly-UX-UI.pdf)
+- **Wireframes:** [QR-Drinkly-Wireframes.pdf](docs/QR-Drinkly-Wireframes.pdf)
 
-- Welcome
-- Home
-- Menu
-- Drawer Menu
-- Drink Details
-- API Coffee Details
-- Cart
-- Checkout
-- Order Confirmation
-- Café
+## Project concept
 
-## ✨ Features
+Drinkly is designed as a simple digital café ordering experience:
 
-### Main application features
+**Welcome → Home → Menu → Drink Details → Cart → Checkout → Confirmation**
 
-- Welcome screen
-- Dine-in and takeaway order types
-- Home screen with popular drinks
-- Drink categories
-- Search drinks
-- Drink details
-- Drink customization
-- Add drinks to cart
-- Quantity controls
-- Remove items from cart
-- Checkout
-- Payment method selection
-- Order confirmation
-- Café information
-- Bottom navigation
-- Drawer navigation
-- Responsive mobile layout
-- Navigation between screens with React Navigation
-- Passing drink IDs through navigation parameters
-- Validation of invalid or missing drink IDs
+The application allows users to browse drinks, search and filter the catalog, open detailed drink information, customize an order, add drinks to the cart and complete the checkout flow.
 
-### API features
-
-- Integration with a public REST API
-- Loading coffee drinks from the API
-- Fetch API for HTTP requests
-- API data stored in React state
-- Loading state
-- Error handling
-- API coffee cards
-- API coffee details screen
-- Passing API item IDs through navigation parameters
-- Validation when an API coffee item cannot be found
-- `FlatList` for rendering API data
-- Custom `ApiCoffeeCard` component
-- `keyExtractor` for API list items
-
----
-
-# ☕ API Integration
-
-Drinkly uses a public REST API to load additional coffee drinks.
-
-### Public API
-
-The application uses the following endpoint:
-
-https://api.sampleapis.com/coffee/hot
-
-The API does not require an API key.
-
-The API provides coffee data including:
-
-id
-title
-description
-ingredients
-image
-
-The API integration is separated from the UI and stored in:
-
-src/api/coffeeApi.ts
-🔌 API Request
-
-API communication is implemented using the native JavaScript fetch API.
-
-The API URL is stored in a constant:
-
-const API_URL = "https://api.sampleapis.com/coffee/hot";
-
-The request is handled by the fetchCoffee function:
-
-export const fetchCoffee = async (): Promise<ApiCoffee[]> => {
-const response = await fetch(API_URL);
-
-if (!response.ok) {
-throw new Error(`API request failed: ${response.status}`);
-}
-
-const data: ApiCoffee[] = await response.json();
-
-return data;
-};
-
-The API logic is kept separate from the screen components.
-
-📦 API Data Type
-
-The API response is represented by the ApiCoffee TypeScript interface:
-
-export interface ApiCoffee {
-id: number;
-title: string;
-description: string;
-ingredients: string[];
-image: string;
-}
-
-This provides type safety when working with API data.
-
-🔄 API Data Flow
-
-The API data is loaded on the Home screen using useEffect.
-
-The received data is stored in React state using useState.
-
-The basic data flow is:
-
-Home Screen
-↓
-fetchCoffee()
-↓
-Public Coffee API
-↓
-API response
-↓
-apiDrinks state
-↓
-FlatList
-↓
-ApiCoffeeCard
-↓
-ApiCoffeeDetails
-⏳ Loading State
-
-While the API request is being processed, the application displays:
-
-Loading...
-
-The loading state is controlled with React state:
-
-const [loading, setLoading] = useState(true);
-
-The state is updated when the API request starts and finishes.
-
-⚠️ Error Handling
-
-The API request is wrapped in try/catch.
-
-If the request fails, the application displays:
-
-Unable to load drinks. Please try again.
-
-The error state is stored separately:
-
-const [error, setError] = useState<string | null>(null);
-
-The API error handling was tested by temporarily using an invalid API URL.
-
-📋 API List
-
-API drinks are displayed using React Native FlatList.
-
-The list uses a custom component:
-
-src/components/ApiCoffeeCard.tsx
-
-Each API item has a unique key based on its API ID:
-
-keyExtractor={(item) => item.id.toString()}
-
-The ApiCoffeeCard receives the API drink through props and handles the press event.
-
-☕ API Coffee Details
-
-When the user presses an API coffee card, the application navigates to:
-
-ApiCoffeeDetails
-
-The selected API item ID is passed through navigation parameters:
-
-navigation.navigate("ApiCoffeeDetails", {
-itemId,
-});
-
-The details screen receives the parameter using React Navigation:
-
-const { itemId } = route.params;
-
-The API data is loaded and the corresponding coffee item is found by its ID.
-
-If the item does not exist, the application displays:
-
-Coffee not found.
-
-The API details screen displays:
-
-coffee image
-coffee title
-description
-ingredients
-
-## 🧭 Navigation
-
-The application uses **React Navigation** with three navigation types:
-
-### Stack Navigator
-
-The root stack controls the main application flow:
-
-- `Welcome`
-- `AppDrawer`
-- `DrinkDetails`
-- `ApiCoffeeDetails`
-- `Checkout`
-- `Payment`
-- `Confirmation`
-
-### Drawer Navigator
-
-The drawer provides access to:
-
-- Home
-- Menu
-- My Order
-- Café
-- Change order type
-- Social media links
-
-The drawer keeps the original Drinkly visual design through a custom drawer content component.
-
-### Tab Navigator
-
-The main application uses a bottom tab structure:
-
-- Home
-- Menu
-- Cart
-
-The native tab bar is hidden because the application uses the custom `BottomNavigation` component for the visual interface.
-
-The Café screen is available through the Drawer navigation.
-
-### Navigation parameters
-
-The application uses navigation parameters for different types of data.
-
-Local drink details
-
-Drink details receive a drinkId parameter:
-
-navigation.navigate("DrinkDetails", {
-drinkId: drink.id,
-});
-
-The `DrinkDetails` screen validates the received ID and displays an error state if the drink does not exist.
-
-API coffee details
-
-API coffee details receive an itemId parameter:
-
-navigation.navigate("ApiCoffeeDetails", {
-itemId,
-});
-
-The ApiCoffeeDetails screen uses this ID to find the corresponding API item.
-
-Checkout → Confirmation
-
-The selected payment method is passed through navigation parameters:
-
-navigation.navigate(SCREENS.CONFIRMATION, {
-paymentMethod: method,
-});
-
-The Confirmation screen receives the value through:
-
-const route = useRoute<
-RouteProp<RootStackParamList, "Confirmation">
-
-> ();
-
-const paymentMethod = route.params.paymentMethod;
-
-This provides an additional example of passing data between screens using route.params.
-
-Navigation screen names are stored in:
-
-```text
-src/constants/screens.ts
-```
-
-This provides reusable constants such as:
-
-```tsx
-SCREENS.HOME;
-SCREENS.MENU;
-SCREENS.CART;
-SCREENS.DRINK_DETAILS;
-SCREENS.CHECKOUT;
-SCREENS.CAFE;
-```
-
-## 🌐 Global State Management
-
-Assignment 6 demonstrates two approaches to global state management:
-
-- React Context API
-- Redux Toolkit
-
-The application uses both approaches for different types of global state.
-
-### Context API
-
-React Context API is used for application-wide theme and shared application state.
-
-The Context implementation is located in:
-
-````text
-src/context/
-├── AppContext.tsx
-└── ThemeContext.tsx
-
-ThemeContext
-
-ThemeContext stores the current application theme:
-
-light
-dark
-
-The context provides:
-
-theme
-toggleTheme()
-
-The ThemeProvider is connected at the root of the application in App.tsx.
-
-Components use the context through the useTheme() hook.
-
-The theme is demonstrated in several components, including:
-
-Welcome
-Header
-BottomNavigation
-
-The theme can be changed by pressing the theme button.
-
-The Context API demonstrates how shared state can be accessed by different components without passing it through props.
-
-AppContext
-
-AppContext stores shared application state related to the ordering flow.
-
-It provides:
-
-order mode
-payment method
-selected drink
-favorites
-
-The context also provides actions for changing and resetting this state.
-
-The custom useAppContext() hook is used by components that need access to this shared state.
-
-Redux Toolkit
-
-Redux Toolkit is used to manage the shopping cart.
-
-Redux dependencies:
-
-@reduxjs/toolkit
-react-redux
-
-Redux files are located in:
-
-src/store/
-├── cartSlice.ts
-└── store.ts
-Cart Slice
-
-The cart state contains:
-
-items: CartItem[]
-
-The cart slice provides the following reducers:
-
-addItem
-removeItem
-updateQuantity
-clearCart
-Redux Store
-
-The Redux store is configured using configureStore().
-
-The store contains the cart reducer:
-
-cart
-└── items
-
-The application is wrapped with the Redux Provider in App.tsx.
-
-Redux in Components
-
-The application uses:
-
-useSelector() to read cart data
-useDispatch() to update cart data
-
-Redux is integrated into:
-
-Drink Details
-Cart
-Checkout
-Order Confirmation
-Bottom Navigation
-
-For example, adding a drink to the cart dispatches the addItem action.
-
-Changing the quantity dispatches updateQuantity.
-
-Removing an item dispatches removeItem.
-
-After successful order confirmation, clearCart removes the completed order from the Redux store.
-
-Why two approaches are used
-
-Context API and Redux Toolkit are demonstrated as two different approaches to global state management.
-
-Context API is used for shared application settings and state such as the theme.
-
-Redux Toolkit is used for the shopping cart because the cart contains multiple related operations such as adding items, removing items and updating quantities.
-
-This separation keeps the application state organized and demonstrates both approaches required by the assignment.
-
-## 🛠️ Technologies
+## Technologies
 
 - React Native
 - Expo
 - TypeScript
 - React Navigation
-- React Navigation Native Stack
-- React Navigation Bottom Tabs
-- React Navigation Drawer
-- React Hooks
-- Fetch API
-- FlatList
-- React Native StyleSheet
-- Flexbox
-- React Native Gesture Handler
+- Context API
+- Redux Toolkit
+- Express
+- REST API
 - React Native Reanimated
-- Public REST API
+- Expo Atlas
+- CSS Modules for web-specific animated components
 
-## 🧩 Reusable Components
+## Main functionality
 
-The application is built using reusable React Native components.
+### Drink catalog
 
-Examples:
+The application contains a catalog of 37 drinks provided through a custom REST API.
 
-- Header
-- StatusBar
-- Button
-- DrinkCard
-- ApiCoffeeCard
-- MenuCard
-- CartItem
-- CategoryTabs
-- SearchBar
-- QuantityControl
-- OptionButton
-- CheckoutChoice
-- SummaryRow
-- BottomNavigation
-- Icon
+The catalog includes:
 
-Components receive data and callbacks through props, which makes them reusable across different screens.
+- Coffee
+- Tea
+- Cold Drinks
+- Juice
+- Water
+- Cocoa
 
-## 📂 Project Structure
+The Home screen provides the following menu groups:
+
+- All
+- Hot Drinks
+- Cold Drinks
+- Others
+
+Drinks are displayed alphabetically within the selected catalog.
+
+### Search and filtering
+
+The Home screen contains a search field with:
+
+- drink name search;
+- search focus state;
+- category selection;
+- clear button;
+- category-based filtering;
+- vertical catalog scrolling;
+- sticky category title.
+
+Search categories include:
+
+- Coffee
+- Tea
+- Cold Drinks
+- Juice
+- Water
+- Cocoa
+
+When a category is selected, the main catalog displays only drinks belonging to that category.
+
+The category filter is based on the drink's `category` field, while the Home tabs use the separate `menuCategory` field. This allows cases such as Iced Tea to appear in the Cold Drinks menu group while still belonging to the Tea search category.
+
+## Custom REST API
+
+A custom Express REST API was added as the main data source for the drink catalog.
+
+The API is located in:
 
 ```text
-DrinklyExpo/
-│
-├── App.tsx
-│
-├── src/
-│   │
-│   ├── api/
-│   │   └── coffeeApi.ts
-│   │
-│   ├── components/
-│   │   ├── ApiCoffeeCard.tsx
-│   │   ├── BottomNavigation.tsx
-│   │   ├── Button.tsx
-│   │   ├── CartItem.tsx
-│   │   ├── CategoryTabs.tsx
-│   │   ├── CheckoutChoice.tsx
-│   │   ├── DrinkCard.tsx
-│   │   ├── Header.tsx
-│   │   ├── Icon.tsx
-│   │   ├── MenuCard.tsx
-│   │   ├── OptionButton.tsx
-│   │   ├── QuantityControl.tsx
-│   │   ├── SearchBar.tsx
-│   │   ├── StatusBar.tsx
-│   │   └── SummaryRow.tsx
-│   │
-│   ├── constants/
-│   │   ├── colors.ts
-│   │   ├── dimensions.ts
-│   │   ├── screens.ts
-│   │   └── typography.ts
-│   │
-│   ├── context/
-│   │   └── AppContext.tsx
-│   │   └── ThemeContext.tsx
-│   │
+server/
+├── data/
+│   └── drinks.ts
+└── index.ts
+```
+
+### API endpoints
+
+Health check:
+
+```text
+GET /api/health
+```
+
+Returns the current API status.
+
+All drinks:
+
+```text
+GET /api/drinks
+```
+
+Returns the complete drink catalog.
+
+Single drink:
+
+```text
+GET /api/drinks/:id
+```
+
+Returns one drink by its ID.
+
+Drink images are served by the same server from:
+
+```text
+/assets/images/api-drinks/
+```
+
+### API client
+
+The application communicates with the API through:
+
+```text
+src/api/drinksApi.ts
+```
+
+The client provides:
+
+```text
+fetchDrinks()
+fetchDrinkById(id)
+```
+
+This keeps API communication separate from UI components and makes the data layer easier to maintain.
+
+## New functionality
+
+The main project expansion is the integration of a custom REST API.
+
+The API replaces the previous external coffee API and provides a controlled catalog specifically for the Drinkly application.
+
+The new architecture is:
+
+```text
+server/data/drinks.ts
+        ↓
+Express REST API
+        ↓
+src/api/drinksApi.ts
+        ↓
+Home / Menu / Drink Details
+        ↓
+Context API + Redux Toolkit
+```
+
+The API integration also introduced a new Drink Details flow for API drinks.
+
+## Drink Details
+
+When a user selects a drink, the application navigates to:
+
+```text
+DrinkDetails
+```
+
+The selected drink ID is passed through React Navigation:
+
+```text
+DrinkDetails: { drinkId: string }
+```
+
+The Stack Navigator then requests the corresponding drink from:
+
+```text
+GET /api/drinks/:id
+```
+
+This demonstrates navigation with parameters and dynamic data loading.
+
+From the Drink Details screen, users can select available drink options and add the configured drink to the cart.
+
+## State management
+
+The application uses both Context API and Redux Toolkit.
+
+### Context API
+
+Context API is used for application-level state that is shared between screens but does not represent the shopping cart itself.
+
+`AppContext` manages:
+
+- order mode;
+- payment method;
+- selected drink;
+- favorites;
+- favorite toggling;
+- order reset.
+
+`ThemeContext` manages application theme information.
+
+This keeps global UI and application preferences separate from cart state.
+
+### Redux Toolkit
+
+Redux Toolkit is used for the shopping cart.
+
+The cart state is implemented in:
+
+```text
+src/store/cartSlice.ts
+src/store/store.ts
+```
+
+Redux manages:
+
+- adding drinks;
+- removing drinks;
+- changing quantity;
+- clearing the cart.
+
+Each cart item stores:
+
+- drink;
+- quantity;
+- selected options;
+- option label.
+
+The same Redux cart is reused for drinks loaded from the REST API, so API products do not require a separate cart implementation.
+
+## Navigation
+
+The application uses React Navigation with three levels:
+
+```text
+Stack Navigator
+    ↓
+Drawer Navigator
+    ↓
+Bottom Tab Navigator
+```
+
+### Main screens
+
+- Welcome
+- Home
+- Menu
+- Cart
+- Café
+- Drink Details
+- Checkout
+- Payment
+- Order Confirmation
+- Burger Menu
+
+The navigation structure is defined in:
+
+```text
+src/navigation/
+├── AppNavigator.tsx
+├── DrawerNavigator.tsx
+├── StackNavigator.tsx
+├── TabNavigator.tsx
+└── navigationTypes.ts
+```
+
+## Project structure
+
+```text
+.
+├── assets/
+│   ├── icons/
+│   └── images/
+├── screenshots/
+├── server/
 │   ├── data/
 │   │   └── drinks.ts
-│   │
+│   └── index.ts
+├── src/
+│   ├── api/
+│   │   └── drinksApi.ts
+│   ├── components/
+│   ├── constants/
+│   ├── context/
+│   ├── hooks/
 │   ├── navigation/
-│   │   ├── AppNavigator.tsx
-│   │   ├── DrawerNavigator.tsx
-│   │   ├── StackNavigator.tsx
-│   │   ├── TabNavigator.tsx
-│   │   └── navigationTypes.ts
-│   ├── store/
-│   │   ├── cartSlice.ts
-│   │   └── store.ts
-│   │
 │   ├── pages/
-│   │   ├── Welcome.tsx
-│   │   ├── Home.tsx
-│   │   ├── Menu.tsx
-│   │   ├── DrinkDetails.tsx
-│   │   ├── Cart.tsx
-│   │   ├── Checkout.tsx
-│   │   ├── PaymentMethod.tsx
-│   │   ├── OrderConfirmation.tsx
-│   │   └── Cafe.tsx
-│   │
+│   ├── store/
 │   ├── types/
-│   │   └── index.ts
-│   │
 │   └── utils/
-│       ├── options.ts
-│       └── price.ts
-│
-├── screenshots/
-│
+├── App.tsx
 ├── app.json
 ├── package.json
-├── tsconfig.json
 └── README.md
-````
-
-## 🎨 Styling
-
-The project uses React Native's `StyleSheet.create()` for component styling.
-
-Reusable design values are stored in separate constants:
-
-- colors
-- dimensions
-- typography
-
-This helps keep the interface consistent and reduces duplicated values and magic numbers.
-
-## 📱 Mobile Responsive Design
-
-Drinkly is designed as a mobile-first application for smartphones.
-
-The main design target is the iPhone 17 screen size. The interface uses responsive React Native components so that the same layout adapts to different smartphone screen widths.
-
-The application was tested at:
-
-| Width  | Purpose             |
-| ------ | ------------------- |
-| 320 px | Small smartphone    |
-| 375 px | Compact smartphone  |
-| 390 px | Standard smartphone |
-| 430 px | Large smartphone    |
-
-### Responsive techniques
-
-The application uses:
-
-- `useWindowDimensions()`
-- Flexbox
-- flexible widths
-- `aspectRatio`
-- responsive card sizes
-- `ScrollView`
-- adaptive horizontal spacing
-- reusable components
-
-The same UI components are used across platforms without creating separate layouts for different screen sizes.
-
-## 🚀 Getting Started
-
-### 1. Clone the repository
-
-```bash
-git clone <YOUR_REPOSITORY_URL>
 ```
 
-### 2. Go to the project directory
+### Components
 
-```bash
-cd DrinklyExpo
+Reusable UI components are located in:
+
+```text
+src/components/
 ```
 
-### 3. Install dependencies
+Examples include:
+
+- `DrinkCard`
+- `CategoryTabs`
+- `SearchBar`
+- `BottomNavigation`
+- `CartItem`
+- `QuantityControl`
+- `OptionButton`
+- `CheckoutChoice`
+- `Header`
+- `BurgerMenu`
+
+This keeps screens focused on application logic and improves component reusability.
+
+## Performance and optimization
+
+The project uses several React and Expo optimization techniques:
+
+- `React.memo` for reusable components where appropriate;
+- `useMemo` for derived data;
+- `useCallback` for stable callbacks;
+- React Native Reanimated for animations;
+- responsive dimensions for different screen sizes;
+- separated constants for colors, dimensions, typography and categories.
+
+## Responsive design
+
+The application supports different screen widths and adapts:
+
+- horizontal padding;
+- search field layout;
+- category tabs;
+- drink cards;
+- navigation elements.
+
+The interface was tested on different viewport sizes during development.
+
+## Screenshots
+
+### Welcome
+
+![Welcome](screenshots/WelcomePage.png)
+
+### Home
+
+![Home](screenshots/HomePage.png)
+
+### Menu
+
+![Menu](screenshots/MenuPage.png)
+
+### Drink Details
+
+![Drink Details](screenshots/DrinkDetailsPage.png)
+
+### Cart
+
+![Cart](screenshots/CartPage.png)
+
+### Checkout
+
+![Checkout](screenshots/CheckOutPage.png)
+
+### Order Confirmation
+
+![Order Confirmation](screenshots/OrderConfirmationPage.png)
+
+## Main user flow
+
+```text
+Welcome
+   ↓
+Home
+   ↓
+Search / Category
+   ↓
+Drink Details
+   ↓
+Customize drink
+   ↓
+Add to Cart
+   ↓
+Cart
+   ↓
+Checkout
+   ↓
+Payment
+   ↓
+Order Confirmation
+```
+
+## Running the project
+
+Install dependencies:
 
 ```bash
 npm install
 ```
 
-### 4. Start the development server
+### Start the REST API
+
+Run:
 
 ```bash
-npx expo start
+npm run api
 ```
 
-To run the web version:
+The API will be available at:
+
+```text
+http://localhost:3000
+```
+
+Health check:
+
+```text
+http://localhost:3000/api/health
+```
+
+### Start Expo
+
+In a separate terminal:
+
+```bash
+npm start
+```
+
+For web:
 
 ```bash
 npx expo start --web
 ```
 
-## 🔍 TypeScript Check
+## TypeScript check
 
 The project can be checked with:
 
@@ -647,304 +452,35 @@ The project can be checked with:
 npx tsc --noEmit
 ```
 
-The application is developed with TypeScript to provide type safety for:
-
-- components
-- props
-- navigation
-- navigation parameters
-- local drinks
-- API drinks
-- cart data
-- API responses
-
-The final project passes the TypeScript check without errors.
-
-## Assignment 7 — Performance Optimization
-
-This assignment focuses on performance optimization of the DrinklyExpo React Native application.
-
-### 1. Animation optimization
-
-For the `DrinkCard` component, a visible animation was added to the favorite button.
-
-The animation uses `react-native-reanimated` with:
-
-- `useSharedValue`
-- `useAnimatedStyle`
-- `withSpring`
-
-When a drink is added to favorites, the heart icon smoothly scales up. When it is removed from favorites, it returns to its original size.
-
-This provides visual feedback without using React state for the animation itself.
-
-### 2. Rendering optimization
-
-The `DrinkCard` component was wrapped with `React.memo` to avoid unnecessary re-renders when its props have not changed.
-
-In `Home.tsx`, callback functions passed to child components were stabilized with `useCallback`:
-
-- `handleDrinkPress`
-- `handleFavoriteToggle`
-- `handleCategoryChange`
-- `handleCartPress`
-- `handleApiCoffeePress`
-
-Existing expensive list calculations were optimized with `useMemo`:
-
-- popular drinks
-- search results
-- displayed drinks
-
-This helps prevent unnecessary recalculation when unrelated state changes.
-
-Temporary `console.count()` logging was used during development to verify component rendering behavior. The logging was removed from the final version.
-
-### 3. Bundle analysis
-
-The production application was exported with source maps and analyzed using Expo Atlas.
-
-The analysis was performed for the web bundle.
-
-The resulting bundle size was approximately **1.8 MB**.
-
-The largest parts of the web bundle included:
-
-- `react-native-reanimated`
-- `react-native-web`
-- `react-dom`
-- React Native runtime modules
-
-`react-native-reanimated` was not removed because it is actively used by the application for the Assignment 7 animation.
-
-`react-native-web` and `react-dom` are required for the web version of the Expo application.
-
-Redux dependencies were also retained because they are part of the application's existing state-management implementation.
-
-### 4. Asset analysis
-
-The Expo Atlas analysis also showed a large `Welcome.png` asset of approximately **1.4 MB**.
-
-The source image was checked and confirmed to be:
-
-- 732 × 1100 px
-- PNG
-- RGBA with transparency
-
-The image was not blindly converted or reduced because transparency is used by the design and the current image dimensions closely match the displayed aspect ratio.
-
-### 5. Verification
-
-TypeScript compilation was checked with:
-
-npx tsc --noEmit
-
-Result:
-
-0 errors
-
-The application was also tested in Expo Web, including the favorite-button animation.
-
-### 6. Tools used
-
-React Native
-Expo
-React.memo
-useMemo
-useCallback
-React Native Reanimated
-Expo Atlas
-TypeScript
-
-### 7. Result
-
-The application now includes:
-
-a visible Reanimated interaction
-optimized rendering of drink cards
-memoized calculations for filtering and searching
-stable callback references
-bundle analysis with Expo Atlas
-analysis of large application assets
-TypeScript verification with no errors
-
-## 📋 Main User Flow
-
-### Welcome
-
-![Welcome](./screenshots/WelcomePage.png)
-
-#### Context API — Theme
-
-![Theme Context](./screenshots/ThemeContext.png)
-
-### Home
-
-![Home](./screenshots/HomePage.png)
-
-### Menu
-
-![Menu](./screenshots/MenuPage.png)
-
-### Drawer Menu
-
-![Burger Menu](./screenshots/BurgerMenu.png)
-
-### Drink Details
-
-![Drink Details](./screenshots/DrinkDetailsPage.png)
-
-### Add to Cart
-
-![Cart](./screenshots/CartPage.png)
-
-### Cart
-
-![Cart](./screenshots/CartNotOrder.png)
-
-#### Redux Toolkit — Cart
-
-![Redux Cart](./screenshots/ReduxCart.png)
-
-### Checkout
-
-![Checkout](./screenshots/CheckOutPage.png)
-
-### Order Confirmation
-
-![Order Confirmation](./screenshots/OrderConfirmationPage.png)
-
-Users can navigate between the main sections using the custom bottom navigation and Drawer navigation.
-
-### Assignment 7 — Performance Optimization
-
-#### Animation — Favorite button
-
-![Assignment 7 — Favorite animation](./screenshots/assignment-7-animation.png)
-
-#### Bundle analysis — Expo Atlas
-
-![Assignment 7 — Bundle analysis](./screenshots/assignment-7-bundle-analysis.png)
-
-### ☕ API Flow
-
-The API functionality can be demonstrated through the Home screen.
-
-Home
-↓
-From API
-↓
-API Coffee Card
-↓
-ApiCoffeeDetails
-↓
-Back to Home
-
-The API section displays coffee drinks loaded from the public Coffee API.
-
-Selecting an API coffee opens its details screen using the corresponding itemId.
-
-## 🔄 Order Flow
-
-The main ordering flow is:
-
-```text
-Welcome
-   ↓
-Home
-   ↓
-Drink Details
-   ↓
-Cart
-   ↓
-Checkout
-   ↓
-Order Confirmation
-   ↓
-Home
-```
-
-Users can also return to the previous screen using the Back action.
-
-After order confirmation, the cart is cleared and the user can return to the Home screen.
-
-## 📚 Assignment
-
-This project was created as part of a React Native learning assignment.
-
-The project demonstrates:
-
-React Native
-
-- React Native components
-- component reusability
-- props
-- styling
-- Flexbox
-- responsive design
-
-  TypeScript
-
-- typed components
-- typed props
-- typed navigation
-- navigation parameters
-- typed local data
-- typed API responses
-
-  Navigation
-
-- Stack navigation
-- Tab navigation
-- Drawer navigation
-- nested navigators
-- navigation parameters
-- parameter validation
-- screen transitions
-
-  API / Data
-
-- public REST API
-- Fetch API
-- asynchronous data loading
-- useEffect
-- useState
-- FlatList
-- custom API card component
-- keyExtractor
-- loading state
-- error handling
-- API details screen
-- API navigation parameters
-
-🚀 Getting Started
-
-1. Clone the repository
-   git clone <YOUR_REPOSITORY_URL>
-2. Go to the project directory
-   cd DrinklyExpo
-3. Install dependencies
-   npm install
-4. Start the development server
-   npx expo start
-
-To run the web version:
-
-npx expo start --web
-
-### 📸 Screenshots
-
-Screenshots demonstrating the application interface and API functionality are stored in:
-
-screenshots/
-
-The API functionality screenshots include:
-
-API drinks displayed on Home
-API coffee card
-API coffee details
-API error state
-
-### 👩‍💻 Author
-
-Наталія Боднарчук
+## Development decisions
+
+The project was expanded without replacing the existing application architecture.
+
+The main decisions were:
+
+1. Replace the previous external coffee API with a custom REST API.
+2. Keep API communication inside a separate API layer.
+3. Reuse existing Drink Details, Cart and customization functionality.
+4. Use navigation parameters to load a selected drink dynamically.
+5. Use Context API for shared application-level state.
+6. Use Redux Toolkit for shopping cart state.
+7. Keep reusable UI elements in separate components.
+8. Separate menu grouping from drink categories to support flexible filtering.
+
+This approach keeps the application modular while allowing new functionality to be added without duplicating existing logic.
+
+## Result
+
+The final Drinkly application provides:
+
+- a reusable drink catalog;
+- a custom REST API;
+- dynamic drink loading;
+- search and category filtering;
+- drink details with navigation parameters;
+- drink customization;
+- favorites;
+- Redux-powered cart;
+- checkout and payment flow;
+- responsive UI;
+- modular React Native architecture.
