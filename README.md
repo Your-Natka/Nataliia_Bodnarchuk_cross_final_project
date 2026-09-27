@@ -36,8 +36,11 @@ The project documentation includes the initial UX/UI materials and the final pro
 ## Project Links
 
 - **GitHub Repository:** [Drinkly — Final Project](https://github.com/Your-Natka/Nataliia_Bodnarchuk_cross_final_project)
-- **Finally Presentation:**[Drinkly-Final-Project.pdf](docs/Drinkly-Final-Project.pdf)
+
+- **Final Presentation:** [Drinkly Final Presentation](docs/Drinkly_final_presentation.pdf)
+
 - **UX/UI Presentation:** [QR-Drinkly-UX-UI.pdf](docs/QR-Drinkly-UX-UI.pdf)
+
 - **Wireframes:** [QR-Drinkly-Wireframes.pdf](docs/QR-Drinkly-Wireframes.pdf)
 
 ## Project concept
