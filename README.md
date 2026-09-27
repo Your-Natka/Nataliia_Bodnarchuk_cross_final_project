@@ -3,6 +3,36 @@
 Drinkly is a cross-platform mobile application for ordering drinks in a café.
 The application was developed with React Native, Expo and TypeScript and expanded with a custom REST API, improved search and category filtering, navigation parameters, Context API and Redux Toolkit.
 
+# Initial Application Analysis
+
+The initial Drinkly application provided the main café ordering flow: Welcome, Home, Menu, Drink Details, Cart, Checkout and Order Confirmation. The original version was based mainly on a local/static drink catalog and already contained the basic ordering experience.
+
+The final project extends this foundation without changing the core ordering concept. The main goal was to make the application more modular, data-driven and scalable.
+
+# Planned Improvement Areas
+
+Three main areas were selected for improvement:
+
+1.  External data integration
+
+The original application used a local/static drink catalog. The final version introduces a custom REST API with 37 drinks and separate API endpoints for retrieving the complete catalog and individual drinks.
+
+2.  Dynamic Drink Details and navigation
+
+The original flow was extended with a dynamic Drink Details scenario. The selected drink is passed through navigation using a drinkId parameter and its data is loaded from the REST API, including loading and error states.
+
+3.  State management and ordering
+
+The final version integrates Context API and Redux Toolkit. Context API is used for application-level state such as favorites and order-related settings, while Redux Toolkit manages cart items and quantities. API-loaded drinks can therefore use the same existing ordering and cart flow.
+
+# Presentation and Design Documentation
+
+The project documentation includes the initial UX/UI materials and the final project presentation:
+
+- Final Project Presentation: docs/Drinkly-Final-Project.pdf
+- UX/UI Presentation: docs/QR-Drinkly-UX-UI.pdf
+- Initial Wireframes: docs/QR-Drinkly-Wireframes.pdf
+
 ## Project Links
 
 - **GitHub Repository:** [Drinkly — Final Project](https://github.com/Your-Natka/Nataliia_Bodnarchuk_cross_final_project)
